@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar, Footer } from "@/app/component/layout";
 import {
@@ -10,7 +10,8 @@ import {
   PersonAssigner,
   SplitResultCard,
 } from "@/app/component/splitbill";
-import { calculateSplitBill } from "@/lib/api/splitbill";
+import { calculateSplitBill, saveSplitBillSession } from "@/lib/api/splitbill";
+import { getToken } from "@/lib/auth";
 import type {
   ItemEntry,
   Participant,
@@ -21,6 +22,7 @@ import type {
 
 export default function SplitBillPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   /* ── Core State ── */
   const [activeTab, setActiveTab] = useState<"ocr" | "manual">("ocr");
@@ -41,6 +43,12 @@ export default function SplitBillPage() {
   const [splitResult, setSplitResult] = useState<SplitBillResponse | null>(null);
   const [calculating, setCalculating] = useState(false);
   const [calcError, setCalcError] = useState("");
+
+  /* ── Save Bill State ── */
+  const [restaurantName, setRestaurantName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   /* ── Bank Transfer ── */
   const [bankName, setBankName] = useState("Bank Central Asia (BCA)");
@@ -76,7 +84,6 @@ export default function SplitBillPage() {
     setDetectedService(result.detectedService);
     setDetectedDiscount(result.detectedDiscount);
 
-    // If OCR detected tax/service, clear fallback rates
     if (result.detectedTax !== null) setTaxRate(null);
     if (result.detectedService !== null) setServiceRate(null);
   }, []);
@@ -84,9 +91,7 @@ export default function SplitBillPage() {
   /* ── Handle OCR from inline uploader ── */
   const handleInlineOcr = useCallback(
     (result: OcrResult) => {
-      console.log("OCR Result received:", JSON.stringify(result, null, 2));
       applyOcrResult(result);
-      // Scroll ke items section setelah delay
       setTimeout(() => {
         const el = document.getElementById("items-section");
         el?.scrollIntoView({ behavior: "smooth" });
@@ -94,32 +99,14 @@ export default function SplitBillPage() {
     },
     [applyOcrResult]
   );
-  /* ── Build request and call backend ── */
-  const handleCalculate = useCallback(async () => {
-    setCalcError("");
 
-    // Validate: at least 1 participant
-    if (participants.length === 0) {
-      setCalcError("Tambahkan minimal 1 orang dulu.");
-      return;
-    }
-
-    // Validate: at least 1 item assigned
-    const hasAssignment = Object.values(assignments).some(
-      (ids) => ids.length > 0
-    );
-    if (!hasAssignment && items.length > 0) {
-      setCalcError("Assign minimal 1 item ke seseorang.");
-      return;
-    }
-
-    // Build people array with their assigned items
+  /* ── Build the SplitBillRequest payload ── */
+  const buildRequest = useCallback((): SplitBillRequest => {
     const people = participants.map((p) => {
       const assignedItems = items
         .filter((item) => (assignments[item.id] || []).includes(p.id))
         .map((item) => {
           const assigneeCount = (assignments[item.id] || []).length;
-          // If shared item, split price equally among assignees
           const splitPrice =
             assigneeCount > 1
               ? Math.round(item.price / assigneeCount)
@@ -130,7 +117,7 @@ export default function SplitBillPage() {
       return { name: p.name, items: assignedItems };
     });
 
-    const request: SplitBillRequest = {
+    return {
       people,
       taxRate,
       serviceRate,
@@ -138,6 +125,28 @@ export default function SplitBillPage() {
       detectedService,
       detectedDiscount,
     };
+  }, [participants, items, assignments, taxRate, serviceRate, detectedTax, detectedService, detectedDiscount]);
+
+  /* ── Build request and call backend ── */
+  const handleCalculate = useCallback(async () => {
+    setCalcError("");
+    setSaveSuccess(false);
+    setSaveError("");
+
+    if (participants.length === 0) {
+      setCalcError("Tambahkan minimal 1 orang dulu.");
+      return;
+    }
+
+    const hasAssignment = Object.values(assignments).some(
+      (ids) => ids.length > 0
+    );
+    if (!hasAssignment && items.length > 0) {
+      setCalcError("Assign minimal 1 item ke seseorang.");
+      return;
+    }
+
+    const request = buildRequest();
 
     try {
       setCalculating(true);
@@ -152,10 +161,62 @@ export default function SplitBillPage() {
     } finally {
       setCalculating(false);
     }
+  }, [participants, items, assignments, buildRequest]);
+
+  /* ── Save Bill Handler ── */
+  const handleSaveBill = useCallback(async () => {
+    // Check if user is logged in
+    const token = getToken();
+    if (!token) {
+      // Store current state to sessionStorage so user can resume after login
+      sessionStorage.setItem(
+        "pending_split_bill",
+        JSON.stringify({
+          items,
+          participants,
+          assignments,
+          restaurantName,
+          taxRate,
+          serviceRate,
+          detectedTax,
+          detectedService,
+          detectedDiscount,
+        })
+      );
+      router.push("/login?redirect=/split-bill&reason=save");
+      return;
+    }
+
+    if (!restaurantName.trim()) {
+      setSaveError("Masukkan nama restoran dulu.");
+      return;
+    }
+
+    setSaving(true);
+    setSaveError("");
+    setSaveSuccess(false);
+
+    try {
+      const request = buildRequest();
+      await saveSplitBillSession(request, restaurantName.trim());
+      setSaveSuccess(true);
+      setSaveError("");
+    } catch (err: any) {
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Gagal menyimpan split bill.";
+      setSaveError(msg);
+    } finally {
+      setSaving(false);
+    }
   }, [
-    participants,
     items,
+    participants,
     assignments,
+    restaurantName,
+    buildRequest,
+    router,
     taxRate,
     serviceRate,
     detectedTax,
@@ -194,6 +255,8 @@ export default function SplitBillPage() {
     const encoded = encodeURIComponent(msg);
     window.open(`https://wa.me/?text=${encoded}`, "_blank");
   }, [splitResult, bankName, accountNumber, accountOwner]);
+
+  const isLoggedIn = typeof window !== "undefined" && !!getToken();
 
   return (
     <div
@@ -384,35 +447,17 @@ export default function SplitBillPage() {
               🤖 OCR Detected:
             </span>
             {detectedTax !== null && (
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.8125rem",
-                  color: "var(--on-tertiary-container)",
-                }}
-              >
+              <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--on-tertiary-container)" }}>
                 Tax: Rp {detectedTax.toLocaleString("id-ID")}
               </span>
             )}
             {detectedService !== null && (
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.8125rem",
-                  color: "var(--on-tertiary-container)",
-                }}
-              >
+              <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--on-tertiary-container)" }}>
                 Service: Rp {detectedService.toLocaleString("id-ID")}
               </span>
             )}
             {detectedDiscount !== null && (
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.8125rem",
-                  color: "var(--on-tertiary-container)",
-                }}
-              >
+              <span style={{ fontFamily: "var(--font-body)", fontSize: "0.8125rem", color: "var(--on-tertiary-container)" }}>
                 Discount: Rp {detectedDiscount.toLocaleString("id-ID")}
               </span>
             )}
@@ -430,16 +475,10 @@ export default function SplitBillPage() {
             marginBottom: "2rem",
           }}
         >
-          <div
-            className="animate-fade-in-up delay-200"
-            style={{ opacity: 0 }}
-          >
+          <div className="animate-fade-in-up delay-200" style={{ opacity: 0 }}>
             <ItemEditor items={items} onItemsChange={setItems} />
           </div>
-          <div
-            className="animate-fade-in-up delay-300"
-            style={{ opacity: 0 }}
-          >
+          <div className="animate-fade-in-up delay-300" style={{ opacity: 0 }}>
             <PersonAssigner
               items={items}
               participants={participants}
@@ -473,18 +512,9 @@ export default function SplitBillPage() {
             >
               Tax & Service Rate
             </h3>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "1rem",
-              }}
-            >
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <div>
-                <label
-                  className="label-caps"
-                  style={{ display: "block", marginBottom: "0.5rem" }}
-                >
+                <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem" }}>
                   Tax Rate (%)
                 </label>
                 <input
@@ -499,10 +529,7 @@ export default function SplitBillPage() {
                 />
               </div>
               <div>
-                <label
-                  className="label-caps"
-                  style={{ display: "block", marginBottom: "0.5rem" }}
-                >
+                <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem" }}>
                   Service Rate (%)
                 </label>
                 <input
@@ -565,8 +592,7 @@ export default function SplitBillPage() {
                 items.length > 0
                   ? "0 20px 40px rgba(127, 78, 77, 0.15)"
                   : "none",
-              transition:
-                "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               opacity: calculating ? 0.7 : 1,
               marginBottom: "1.5rem",
             }}
@@ -584,6 +610,183 @@ export default function SplitBillPage() {
           {/* ═══ Results ═══ */}
           {splitResult && <SplitResultCard result={splitResult} />}
         </section>
+
+        {/* ═══ Section: Save Bill ═══ */}
+        {splitResult && (
+          <section
+            className="animate-fade-in-up"
+            style={{
+              opacity: 0,
+              animationDelay: "450ms",
+              background: "var(--surface-container-low)",
+              borderRadius: "var(--radius-xl)",
+              padding: "2rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <div
+                style={{
+                  width: "2.5rem",
+                  height: "2.5rem",
+                  borderRadius: "var(--radius-lg)",
+                  background: "var(--primary-container)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "1.125rem",
+                }}
+              >
+                💾
+              </div>
+              <div>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontWeight: 800,
+                    fontSize: "1.25rem",
+                    color: "var(--on-surface)",
+                    margin: 0,
+                  }}
+                >
+                  Simpan ke History
+                </h2>
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.75rem",
+                    color: "var(--on-surface-variant)",
+                    margin: 0,
+                  }}
+                >
+                  {isLoggedIn
+                    ? "Simpan hasil split bill ini agar bisa dilihat nanti."
+                    : "Login dulu untuk menyimpan history split bill."}
+                </p>
+              </div>
+            </div>
+
+            {/* Restaurant name input */}
+            <div style={{ marginBottom: "1rem" }}>
+              <label
+                className="label-caps"
+                style={{ display: "block", marginBottom: "0.5rem", marginLeft: "1rem", color: "var(--primary)", fontWeight: 700 }}
+              >
+                NAMA RESTORAN
+              </label>
+              <input
+                type="text"
+                value={restaurantName}
+                onChange={(e) => setRestaurantName(e.target.value)}
+                className="input-pill"
+                placeholder="e.g. Sushi Tei, Kopi Kenangan, dll."
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 600,
+                }}
+              />
+            </div>
+
+            {/* Save status messages */}
+            {saveError && (
+              <div
+                style={{
+                  padding: "0.75rem 1rem",
+                  background: "#fef2f2",
+                  color: "#ba1a1a",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.8125rem",
+                  borderRadius: "var(--radius-lg)",
+                  marginBottom: "1rem",
+                }}
+              >
+                {saveError}
+              </div>
+            )}
+            {saveSuccess && (
+              <div
+                style={{
+                  padding: "0.75rem 1rem",
+                  background: "rgba(45, 106, 79, 0.1)",
+                  color: "#2d6a4f",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.8125rem",
+                  borderRadius: "var(--radius-lg)",
+                  marginBottom: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                ✅ Split bill berhasil disimpan!{" "}
+                <Link
+                  href="/history"
+                  style={{
+                    color: "#2d6a4f",
+                    fontWeight: 700,
+                    textDecoration: "underline",
+                    textUnderlineOffset: "3px",
+                  }}
+                >
+                  Lihat History →
+                </Link>
+              </div>
+            )}
+
+            {/* Save button */}
+            <button
+              onClick={handleSaveBill}
+              disabled={saving || saveSuccess}
+              style={{
+                width: "100%",
+                padding: "1rem",
+                background: saveSuccess
+                  ? "rgba(45, 106, 79, 0.15)"
+                  : isLoggedIn
+                    ? "var(--gradient-primary)"
+                    : "var(--secondary-container)",
+                color: saveSuccess
+                  ? "#2d6a4f"
+                  : isLoggedIn
+                    ? "#fff"
+                    : "var(--on-secondary-container)",
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
+                fontSize: "1rem",
+                borderRadius: "var(--radius-full)",
+                border: "none",
+                cursor: saving || saveSuccess ? "not-allowed" : "pointer",
+                opacity: saving ? 0.6 : 1,
+                transition: "all 0.3s ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+              }}
+              onMouseEnter={(e) => {
+                if (!saving && !saveSuccess) e.currentTarget.style.transform = "scale(1.02)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+              }}
+            >
+              {saving
+                ? "Menyimpan..."
+                : saveSuccess
+                  ? "✅ Tersimpan"
+                  : isLoggedIn
+                    ? "💾 Simpan ke History"
+                    : "🔐 Login untuk Simpan"}
+            </button>
+          </section>
+        )}
 
         {/* ═══ Section 4: Bank Transfer ═══ */}
         {splitResult && (
@@ -619,24 +822,9 @@ export default function SplitBillPage() {
               }}
             >
               {/* Form side */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1.5rem",
-                }}
-              >
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                 <div>
-                  <label
-                    className="label-caps"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      marginLeft: "1rem",
-                      color: "var(--primary)",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem", marginLeft: "1rem", color: "var(--primary)", fontWeight: 700 }}>
                     BANK NAME
                   </label>
                   <select
@@ -668,16 +856,7 @@ export default function SplitBillPage() {
                   </select>
                 </div>
                 <div>
-                  <label
-                    className="label-caps"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      marginLeft: "1rem",
-                      color: "var(--primary)",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem", marginLeft: "1rem", color: "var(--primary)", fontWeight: 700 }}>
                     ACCOUNT NUMBER
                   </label>
                   <input
@@ -686,23 +865,11 @@ export default function SplitBillPage() {
                     onChange={(e) => setAccountNumber(e.target.value)}
                     className="input-pill"
                     placeholder="Nomor rekening"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontWeight: 600,
-                    }}
+                    style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
                   />
                 </div>
                 <div>
-                  <label
-                    className="label-caps"
-                    style={{
-                      display: "block",
-                      marginBottom: "0.5rem",
-                      marginLeft: "1rem",
-                      color: "var(--primary)",
-                      fontWeight: 700,
-                    }}
-                  >
+                  <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem", marginLeft: "1rem", color: "var(--primary)", fontWeight: 700 }}>
                     ACCOUNT OWNER
                   </label>
                   <input
@@ -711,10 +878,7 @@ export default function SplitBillPage() {
                     onChange={(e) => setAccountOwner(e.target.value)}
                     className="input-pill"
                     placeholder="Nama pemilik rekening"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontWeight: 600,
-                    }}
+                    style={{ fontFamily: "var(--font-display)", fontWeight: 600 }}
                   />
                 </div>
               </div>
@@ -733,26 +897,11 @@ export default function SplitBillPage() {
                   overflow: "hidden",
                 }}
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    padding: "1rem",
-                    opacity: 0.05,
-                    fontSize: "6rem",
-                  }}
-                >
+                <div style={{ position: "absolute", top: 0, right: 0, padding: "1rem", opacity: 0.05, fontSize: "6rem" }}>
                   💳
                 </div>
                 <div>
-                  <p
-                    className="label-caps"
-                    style={{
-                      letterSpacing: "0.15em",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
+                  <p className="label-caps" style={{ letterSpacing: "0.15em", marginBottom: "0.5rem" }}>
                     Transfer ke rekening berikut
                   </p>
                   <h3
@@ -805,8 +954,7 @@ export default function SplitBillPage() {
                     opacity: accountNumber ? 1 : 0.5,
                   }}
                   onMouseEnter={(e) => {
-                    if (accountNumber)
-                      e.currentTarget.style.transform = "scale(1.05)";
+                    if (accountNumber) e.currentTarget.style.transform = "scale(1.05)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = "scale(1)";
@@ -862,7 +1010,6 @@ export default function SplitBillPage() {
             </button>
             <button
               onClick={() => {
-                // Reset everything for new bill
                 setItems([]);
                 setParticipants([]);
                 setAssignments({});
@@ -873,6 +1020,9 @@ export default function SplitBillPage() {
                 setTaxRate(0.1);
                 setServiceRate(0.05);
                 setCalcError("");
+                setRestaurantName("");
+                setSaveSuccess(false);
+                setSaveError("");
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               style={{
