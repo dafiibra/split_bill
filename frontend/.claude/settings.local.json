@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__stitch__get_screen",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida/ADBb0ugd_Y4Hoh570o7Fnr4mwHg3CjpJHQtkz930-0fgNxhA43i1XSdwreoHJU_kMs4Ak6PUT_0vRDoYvefZ_rvKbF2pnuxpN4KDOPClVhCgX2iHnWVrhqWgeO343rK3IbXPTa_K1XwTnQMQTc9viQQiP6uJtcsEmV5opbnJpVaq98rfLKjHeXxl3OCpBe2oxpyRKJnCQx_PG_p-AnnUw7UIk-ht0M4KS-aeoYMQ4cUjcAznPYoV6_Kd2vVoqg\" -o \"E:/splitbill/frontend/stitch_screenshot.png\")",
+      "Bash(curl -L \"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2NiMjkyNzBiM2M5OTQwMDhiZGQ0NTc4ZWFlNjFiNDc5EgsSBxDOlLj6wgIYAZIBIwoKcHJvamVjdF9pZBIVQhM1NDY3NDI0NDA1ODg2NjY4OTAz&filename=&opi=89354086\" -o \"E:/splitbill/frontend/stitch_screen.html\")",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida-public/AB6AXuA4FJQQ8KaVhw6bWsgaeoU4Brhuyig2y3cKpvAQkzp4mLVYLjrmuQjI7fJEr_WqU5pfPWrqYJeShwkWfSH4yfL96sZglLwqqksSb7RycKT6ffB1XSe400FSckuoEmv8D5u2Dx_Je8Mx-H6bWIWXXOFqpheXj0FMY8c7_8mfYgKcFaMJM9p-wdtfJ7hNjvy9ow16dy3dLTrS5B5tKuXq49xsVfnBuzmsoBhseMDWp0_ZqBYln8YXsJ2TdPeyyXRUmxC84OMbB92GPRw\" -o stitch_img_receipt.jpg -s)",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida-public/AB6AXuBHU00N2bzJCxRptoh4tojfkvpuTtUOaG6iWCJujALXIrWsz2lb3m_3WZEKZqTgrkg8kwG_uuJXtO_x1wYhpeIM0HZhMyLIz2n2_-GUFkIwEk-0P5BYr3f9Oh29onrmSws1Ug2p0xjFB3F995VZ-7BV8SBl_e-0xbuNVma8_jUwiK8S8wxV8dmj8eBdG-mixVjFNCUZIyZEfrmExz2cByKZCLun4-hJgPnoDCAgmC5xCVo2zqaEw6GYZBJ7lCIIT1WHCKRUZAqpbNw\" -o stitch_img_google.png -s)",
+      "Bash(curl -L \"https://lh3.googleusercontent.com/aida-public/AB6AXuC4CVmYELH4bPnXh1GHpcuwv98FNU0Bl1PwCuxH2J4HkOpe4SqeWPxmTvrofYbk6daejLsHhZv3RxyYagtiwA_SgHoypUc6aPSln9sLPXMKFZCGgrFBLSy9ZyrZ-l_L4VgX85OwuEmGS3XkJjNhq7OPAc89VG09uKkpn4ktG4TZRHlFmxveJRvGCXSfg0TaO86Qn5VUVImFmFW2je3KGRmil039ZLq1CZdSyNZnU-tZPRcPSzGWnxpf4FWUoA3uxf6xOKzmHCsT32Q\" -o stitch_img_apple.png -s)",
+      "Bash(wait)",
+      "Bash(ls -lh stitch_img_*)",
+      "Bash(cp E:/splitbill/frontend/stitch_img_receipt.jpg E:/splitbill/frontend/public/receipt.jpg)",
+      "Bash(cp E:/splitbill/frontend/stitch_img_google.png E:/splitbill/frontend/public/google-icon.png)",
+      "Bash(cp E:/splitbill/frontend/stitch_img_apple.png E:/splitbill/frontend/public/apple-icon.png)"
+    ]
+  }
+}

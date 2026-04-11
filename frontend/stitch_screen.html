@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#dad3cf",
+                    "surface-container-highest": "#e3dbd8",
+                    "surface-variant": "#e3dbd8",
+                    "on-primary-container": "#663938",
+                    "primary-container": "#ffbfbd",
+                    "on-tertiary-fixed": "#52333c",
+                    "on-background": "#312e2c",
+                    "surface": "#fcf5f2",
+                    "secondary-dim": "#843353",
+                    "primary-dim": "#714342",
+                    "error": "#b02500",
+                    "on-secondary-container": "#7a2b4a",
+                    "inverse-surface": "#100e0c",
+                    "on-tertiary-fixed-variant": "#714e58",
+                    "primary": "#7f4e4d",
+                    "surface-container-low": "#f6efec",
+                    "on-primary-fixed": "#4f2626",
+                    "on-tertiary": "#ffeff1",
+                    "on-surface": "#312e2c",
+                    "tertiary": "#75525b",
+                    "primary-fixed-dim": "#f0b1af",
+                    "secondary-container": "#ffc1d3",
+                    "secondary": "#923f5f",
+                    "on-secondary-fixed": "#611737",
+                    "surface-container-high": "#e8e1de",
+                    "tertiary-container": "#ffd1dc",
+                    "surface-container": "#eee7e3",
+                    "outline": "#7a7674",
+                    "on-error": "#ffefec",
+                    "secondary-fixed-dim": "#ffacc6",
+                    "tertiary-fixed-dim": "#f0c3ce",
+                    "on-surface-variant": "#5f5b59",
+                    "background": "#fcf5f2",
+                    "on-tertiary-container": "#66454e",
+                    "error-dim": "#b92902",
+                    "on-secondary": "#ffeff1",
+                    "inverse-on-surface": "#a19c99",
+                    "tertiary-fixed": "#ffd1dc",
+                    "error-container": "#f95630",
+                    "surface-tint": "#7f4e4d",
+                    "outline-variant": "#b2aca9",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffefee",
+                    "secondary-fixed": "#ffc1d3",
+                    "tertiary-dim": "#684650",
+                    "primary-fixed": "#ffbfbd",
+                    "on-secondary-fixed-variant": "#853454",
+                    "on-primary-fixed-variant": "#704241",
+                    "surface-bright": "#fcf5f2",
+                    "inverse-primary": "#ffbfbd",
+                    "on-error-container": "#520c00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Be Vietnam Pro"],
+                    "label": ["Be Vietnam Pro"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #fcf5f2; color: #312e2c; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-nav { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+        .bg-mocha-gradient { background: linear-gradient(135deg, #7f4e4d 0%, #923f5f 100%); }
+        .floating-icon { animation: float 4s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .stagger-1 { animation-delay: 0s; }
+        .stagger-2 { animation-delay: 0.5s; }
+        .stagger-3 { animation-delay: 1s; }
+        .stagger-4 { animation-delay: 1.5s; }
+    </style>
+</head>
+<body class="selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 dark:bg-zinc-900/70 backdrop-blur-xl shadow-[0_20px_40px_rgba(112,66,65,0.08)]">
+<div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full">
+<div class="text-2xl font-black tracking-tight text-[#704241] dark:text-[#fcf5f2] font-headline">The Social Table</div>
+<nav class="hidden md:flex items-center space-x-8 font-headline font-bold text-lg">
+<a class="text-[#704241] dark:text-[#fcf5f2] border-b-2 border-[#704241] pb-1 hover:text-[#923f5f] transition-all duration-300 ease-out" href="#">Split your bill</a>
+<a class="text-[#704241]/60 dark:text-[#fcf5f2]/60 hover:text-[#923f5f] transition-all duration-300 ease-out" href="#">Groups</a>
+<a class="text-[#704241]/60 dark:text-[#fcf5f2]/60 hover:text-[#923f5f] transition-all duration-300 ease-out" href="#">Pricing</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2 rounded-full font-bold text-[#704241]/60 dark:text-[#fcf5f2]/60 hover:text-[#923f5f] transition-all">Log In</button>
+<button class="bg-mocha-gradient text-white px-6 py-2 rounded-full font-bold scale-105 transition-transform duration-300 hover:opacity-90">Split it!</button>
+</div>
+</div>
+</header>
+<main class="pt-32">
+<!-- Hero Section -->
+<section class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center min-h-[716px]">
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-secondary-container/30 text-secondary font-semibold text-sm">
+<span class="material-symbols-outlined text-sm" style='font-variation-settings: "FILL" 1;'>restaurant</span>
+<span>Modern Split Billing</span>
+</div>
+<h1 class="text-5xl md:text-7xl font-black text-on-surface font-headline leading-[1.1] tracking-tight">
+                    Bagi bill jadi gampang, <span class="text-secondary">tanpa ribet</span>
+</h1>
+<p class="text-xl text-on-surface-variant max-w-lg leading-relaxed">
+                    Lagi nongkrong, makan bareng, atau patungan? Semua bisa langsung beres di sini.
+                </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-mocha-gradient text-white px-8 py-4 rounded-full text-lg font-bold flex items-center gap-2 shadow-xl hover:scale-105 transition-all duration-300">
+<span class="material-symbols-outlined">receipt_long</span>
+                        Mulai Split Bill
+                    </button>
+<button class="bg-surface-container-highest text-primary px-8 py-4 rounded-full text-lg font-bold flex items-center gap-2 hover:scale-105 transition-all duration-300">
+<span class="material-symbols-outlined">photo_camera</span>
+                        Foto Bill
+                    </button>
+</div>
+<div class="pt-4">
+<button class="text-primary font-semibold flex items-center gap-2 group" onclick="document.getElementById('save-login-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-secondary transition-transform group-hover:rotate-12">bookmark_heart</span>
+<span class="border-b border-primary/20 group-hover:border-primary transition-all">Save login</span>
+</button>
+</div>
+</div>
+<!-- Floating Visuals Bento -->
+<div class="relative min-h-[500px] flex items-center justify-center">
+<div class="absolute inset-0 bg-secondary-container/20 blur-[120px] rounded-full"></div>
+<!-- Main Card Interface -->
+<div class="relative z-10 w-full max-w-md bg-surface-container-lowest p-8 rounded-xl shadow-[0_40px_80px_rgba(127,78,77,0.1)]">
+<div class="flex justify-between items-center mb-8">
+<div class="h-12 w-12 rounded-full bg-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="restaurant" style='font-variation-settings: "FILL" 1;'>restaurant</span>
+</div>
+<div class="text-right">
+<p class="text-xs font-label uppercase tracking-widest text-outline">Total Bill</p>
+<p class="text-2xl font-black font-headline text-on-surface">Rp 450.000</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="p-4 bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/40 flex items-center justify-center font-bold text-primary">A</div>
+<span class="font-medium">Andi - Coffee &amp; Pasta</span>
+</div>
+<span class="font-bold">Rp 125k</span>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-lg flex items-center justify-between outline outline-1 outline-outline-variant/15">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container/40 flex items-center justify-center font-bold text-secondary">S</div>
+<span class="font-medium">Siska - Salad Bowl</span>
+</div>
+<span class="font-bold">Rp 85k</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/40 flex items-center justify-center font-bold text-tertiary">B</div>
+<span class="font-medium">Budi - Wagyu Steak</span>
+</div>
+<span class="font-bold">Rp 240k</span>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-dashed border-outline-variant/30 flex justify-between items-center">
+<span class="text-secondary font-bold">Split equally?</span>
+<div class="bg-secondary-container/40 w-12 h-6 rounded-full relative p-1 cursor-pointer">
+<div class="w-4 h-4 bg-secondary rounded-full absolute right-1"></div>
+</div>
+</div>
+</div>
+<!-- Floating Financial Icons -->
+<div class="absolute top-0 right-4 floating-icon stagger-1 z-20">
+<div class="w-16 h-16 bg-white rounded-lg shadow-xl flex items-center justify-center text-3xl">💼</div>
+</div>
+<div class="absolute bottom-10 -left-4 floating-icon stagger-2 z-20">
+<div class="w-20 h-20 bg-white rounded-lg shadow-xl flex items-center justify-center text-4xl">💸</div>
+</div>
+<div class="absolute top-20 -left-10 floating-icon stagger-3 z-20">
+<div class="w-14 h-14 bg-white rounded-lg shadow-xl flex items-center justify-center text-2xl">🐷</div>
+</div>
+<div class="absolute bottom-20 right-0 floating-icon stagger-4 z-20">
+<div class="w-12 h-12 bg-white rounded-lg shadow-xl flex items-center justify-center text-2xl">🪙</div>
+</div>
+</div>
+</section>
+<!-- Input Detail & Bank Transfer Section -->
+<section class="max-w-7xl mx-auto px-6 py-24">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Input Detail Section -->
+<div class="bg-surface-container-low rounded-xl p-8 md:p-12 shadow-sm border border-outline-variant/10">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">edit_document</span>
+</div>
+<h2 class="text-3xl font-headline font-black text-on-surface">Input Detail</h2>
+</div>
+<div class="space-y-6">
+<!-- Add Participant -->
+<div>
+<label class="block text-sm font-bold text-on-surface-variant mb-2">Manage Participants</label>
+<div class="flex gap-2">
+<input class="flex-1 px-4 py-3 rounded-lg bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 placeholder:text-outline-variant/60" placeholder="Add friend name..." type="text"/>
+<button class="bg-primary text-white p-3 rounded-lg hover:bg-primary-dim transition-colors">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+</div>
+<!-- Manual Item List -->
+<div class="space-y-3">
+<label class="block text-sm font-bold text-on-surface-variant">Bill Items</label>
+<div class="grid grid-cols-12 gap-2">
+<input class="col-span-7 px-4 py-3 rounded-lg bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 placeholder:text-outline-variant/60" placeholder="Item name" type="text"/>
+<input class="col-span-3 px-4 py-3 rounded-lg bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary/20 placeholder:text-outline-variant/60" placeholder="Price" type="number"/>
+<button class="col-span-2 bg-secondary text-white rounded-lg flex items-center justify-center hover:bg-secondary-dim transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+<!-- Participant Tags -->
+<div class="flex flex-wrap gap-2 pt-2">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary-container/30 text-secondary rounded-full text-sm font-semibold">
+<span>@Andi</span>
+<button class="material-symbols-outlined text-xs">close</button>
+</div>
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-secondary-container/30 text-secondary rounded-full text-sm font-semibold">
+<span>@Siska</span>
+<button class="material-symbols-outlined text-xs">close</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bank Transfer Detail Section -->
+<div class="bg-tertiary-container/20 rounded-xl p-8 md:p-12 shadow-sm border border-tertiary-container/30">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<h2 class="text-3xl font-headline font-black text-on-surface">Bank Transfer</h2>
+</div>
+<div class="space-y-5">
+<div>
+<label class="block text-xs font-bold text-tertiary uppercase tracking-wider mb-2">Bank Name</label>
+<input class="w-full px-4 py-3 rounded-lg bg-white/60 border-none focus:ring-2 focus:ring-tertiary/20 placeholder:text-outline-variant/60" placeholder="e.g. BCA, Mandiri, GoPay" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-tertiary uppercase tracking-wider mb-2">Account Number</label>
+<input class="w-full px-4 py-3 rounded-lg bg-white/60 border-none focus:ring-2 focus:ring-tertiary/20 placeholder:text-outline-variant/60" placeholder="123-456-7890" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold text-tertiary uppercase tracking-wider mb-2">Account Owner Name</label>
+<input class="w-full px-4 py-3 rounded-lg bg-white/60 border-none focus:ring-2 focus:ring-tertiary/20 placeholder:text-outline-variant/60" placeholder="Your Full Name" type="text"/>
+</div>
+<div class="pt-4">
+<div class="p-4 bg-tertiary/5 rounded-lg border border-tertiary/10 flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary">info</span>
+<p class="text-sm text-on-tertiary-container/80">This info will be shared with your friends so they can easily pay you back.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Bento Grid -->
+<section class="max-w-7xl mx-auto px-6 py-24">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Large Feature -->
+<div class="md:col-span-2 bg-surface-container-low rounded-xl p-12 relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="text-3xl font-headline font-black text-on-surface mb-4">Scan bill secepat kilat</h3>
+<p class="text-on-surface-variant max-w-sm mb-8">Nggak perlu ketik manual satu-satu. Cukup foto receipt, sistem cerdas kami langsung deteksi menu dan harganya.</p>
+<button class="bg-on-surface text-surface px-6 py-3 rounded-full font-bold hover:scale-105 transition-all">Coba Scan</button>
+</div>
+<img class="absolute right-0 bottom-0 w-1/2 h-full object-cover rounded-tl-[100px] opacity-20 group-hover:opacity-40 transition-opacity" data-alt="Close-up of a digital scanner reading a restaurant receipt with soft bokeh lighting in a modern cafe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4FJQQ8KaVhw6bWsgaeoU4Brhuyig2y3cKpvAQkzp4mLVYLjrmuQjI7fJEr_WqU5pfPWrqYJeShwkWfSH4yfL96sZglLwqqksSb7RycKT6ffB1XSe400FSckuoEmv8D5u2Dx_Je8Mx-H6bWIWXXOFqpheXj0FMY8c7_8mfYgKcFaMJM9p-wdtfJ7hNjvy9ow16dy3dLTrS5B5tKuXq49xsVfnBuzmsoBhseMDWp0_ZqBYln8YXsJ2TdPeyyXRUmxC84OMbB92GPRw"/>
+</div>
+<!-- Small Feature 1 (Group Sharing) -->
+<div class="bg-secondary-container/40 rounded-xl p-8 flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl text-secondary" style='font-variation-settings: "FILL" 1;'>group_add</span>
+<div>
+<h4 class="text-xl font-bold font-headline mb-2">Group Sharing</h4>
+<p class="text-sm text-on-secondary-container">Undang teman masuk ke group via link belanja bareng.</p>
+</div>
+</div>
+<!-- Small Feature 2 (History - Replaces Payment/Security in the new layout flow) -->
+<div class="bg-surface-container-highest rounded-xl p-8 flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant" style='font-variation-settings: "FILL" 1;'>history</span>
+<div>
+<h4 class="text-xl font-bold font-headline mb-2">History Records</h4>
+<p class="text-sm text-on-surface-variant">Lacak semua pengeluaran patungan kamu sebelumnya.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-[#f6efec] dark:bg-zinc-800 rounded-t-[3rem] mt-20">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-16 w-full max-w-7xl mx-auto">
+<div class="space-y-4 mb-8 md:mb-0">
+<div class="text-xl font-bold text-[#704241] font-headline">The Social Table</div>
+<p class="font-['Be_Vietnam_Pro'] text-sm tracking-wide text-[#704241]/70">© 2024 The Social Table. Stay Hungry.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8 font-['Be_Vietnam_Pro'] text-sm tracking-wide">
+<a class="text-[#704241]/70 hover:translate-y-[-2px] hover:text-[#923f5f] transition-transform" href="#">Privacy</a>
+<a class="text-[#704241]/70 hover:translate-y-[-2px] hover:text-[#923f5f] transition-transform" href="#">Terms</a>
+<a class="text-[#704241]/70 hover:translate-y-[-2px] hover:text-[#923f5f] transition-transform" href="#">Support</a>
+<a class="text-[#704241]/70 hover:translate-y-[-2px] hover:text-[#923f5f] transition-transform" href="#">Instagram</a>
+</div>
+</div>
+</footer>
+<!-- SaveLoginModal -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4" id="save-login-modal">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-on-background/40 backdrop-blur-md" onclick="document.getElementById('save-login-modal').classList.add('hidden')"></div>
+<!-- Modal Content -->
+<div class="relative z-10 w-full max-w-md bg-surface p-8 rounded-xl shadow-[0_40px_100px_rgba(49,46,44,0.2)] text-center">
+<button class="absolute top-4 right-4 text-outline hover:text-on-surface transition-colors" onclick="document.getElementById('save-login-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="w-20 h-20 bg-secondary-container/40 rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-4xl text-secondary" style='font-variation-settings: "FILL" 1;'>person_add</span>
+</div>
+<h2 class="text-2xl font-black font-headline text-on-surface mb-2">Simpan hasil split kamu</h2>
+<p class="text-on-surface-variant mb-8 leading-relaxed">Login atau daftar untuk melihat kembali riwayat split bill kamu kapanpun dan dimanapun.</p>
+<div class="flex flex-col gap-3">
+<button class="w-full bg-mocha-gradient text-white py-4 rounded-full font-bold text-lg hover:opacity-90 transition-opacity">Login</button>
+<button class="w-full bg-surface-container-highest text-primary py-4 rounded-full font-bold text-lg hover:scale-[1.02] transition-transform">Register</button>
+</div>
+<p class="mt-6 text-xs text-outline font-medium tracking-wide uppercase">Quick Login via Socials</p>
+<div class="flex justify-center gap-4 mt-4">
+<button class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<img alt="google" class="w-5 h-5 grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHU00N2bzJCxRptoh4tojfkvpuTtUOaG6iWCJujALXIrWsz2lb3m_3WZEKZqTgrkg8kwG_uuJXtO_x1wYhpeIM0HZhMyLIz2n2_-GUFkIwEk-0P5BYr3f9Oh29onrmSws1Ug2p0xjFB3F995VZ-7BV8SBl_e-0xbuNVma8_jUwiK8S8wxV8dmj8eBdG-mixVjFNCUZIyZEfrmExz2cByKZCLun4-hJgPnoDCAgmC5xCVo2zqaEw6GYZBJ7lCIIT1WHCKRUZAqpbNw"/>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<img alt="apple" class="w-5 h-5 grayscale opacity-70" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4CVmYELH4bPnXh1GHpcuwv98FNU0Bl1PwCuxH2J4HkOpe4SqeWPxmTvrofYbk6daejLsHhZv3RxyYagtiwA_SgHoypUc6aPSln9sLPXMKFZCGgrFBLSy9ZyrZ-l_L4VgX85OwuEmGS3XkJjNhq7OPAc89VG09uKkpn4ktG4TZRHlFmxveJRvGCXSfg0TaO86Qn5VUVImFmFW2je3KGRmil039ZLq1CZdSyNZnU-tZPRcPSzGWnxpf4FWUoA3uxf6xOKzmHCsT32Q"/>
+</button>
+</div>
+</div>
+</div>
+</body></html>

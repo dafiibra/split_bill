@@ -1,0 +1,10 @@
+# Python
+venv/
+ocr-service/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Env files
+.env
