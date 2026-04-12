@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar, Footer } from "@/app/component/layout";
@@ -20,7 +20,7 @@ import type {
   SplitBillResponse,
 } from "@/lib/types/splitbill";
 
-export default function SplitBillPage() {
+function SplitBillContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -55,23 +55,6 @@ export default function SplitBillPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [accountOwner, setAccountOwner] = useState("");
 
-  /* ── Load OCR result from sessionStorage if redirected from /scan ── */
-  useEffect(() => {
-    const source = searchParams.get("source");
-    if (source === "ocr") {
-      try {
-        const stored = sessionStorage.getItem("ocr_result");
-        if (stored) {
-          const ocrResult: OcrResult = JSON.parse(stored);
-          applyOcrResult(ocrResult);
-          sessionStorage.removeItem("ocr_result");
-        }
-      } catch (err) {
-        console.error("Failed to load OCR result from session:", err);
-      }
-    }
-  }, [searchParams]);
-
   /* ── Apply OCR result to state ── */
   const applyOcrResult = useCallback((result: OcrResult) => {
     const newItems: ItemEntry[] = result.items.map((item, idx) => ({
@@ -87,6 +70,23 @@ export default function SplitBillPage() {
     if (result.detectedTax !== null) setTaxRate(null);
     if (result.detectedService !== null) setServiceRate(null);
   }, []);
+
+  /* ── Load OCR result from sessionStorage if redirected from /scan ── */
+  useEffect(() => {
+    const source = searchParams.get("source");
+    if (source === "ocr") {
+      try {
+        const stored = sessionStorage.getItem("ocr_result");
+        if (stored) {
+          const ocrResult: OcrResult = JSON.parse(stored);
+          applyOcrResult(ocrResult);
+          sessionStorage.removeItem("ocr_result");
+        }
+      } catch (err) {
+        console.error("Failed to load OCR result from session:", err);
+      }
+    }
+  }, [searchParams, applyOcrResult]);
 
   /* ── Handle OCR from inline uploader ── */
   const handleInlineOcr = useCallback(
@@ -165,10 +165,8 @@ export default function SplitBillPage() {
 
   /* ── Save Bill Handler ── */
   const handleSaveBill = useCallback(async () => {
-    // Check if user is logged in
     const token = getToken();
     if (!token) {
-      // Store current state to sessionStorage so user can resume after login
       sessionStorage.setItem(
         "pending_split_bill",
         JSON.stringify({
@@ -1065,5 +1063,37 @@ export default function SplitBillPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function SplitBillPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            minHeight: "100vh",
+            background: "var(--surface)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "2rem",
+              height: "2rem",
+              border: "3px solid var(--surface-container-highest)",
+              borderTopColor: "var(--primary)",
+              borderRadius: "50%",
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      }
+    >
+      <SplitBillContent />
+    </Suspense>
   );
 }

@@ -297,13 +297,12 @@ export default function PersonAssigner({
                   {isUnassigned && (
                     <p
                       style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: "0.6875rem",
-                        color: "#d4a017",
-                        marginTop: "0.375rem",
-                        margin: 0,
-                        marginTop: "0.375rem",
-                      }}
+  fontFamily: "var(--font-body)",
+  fontSize: "0.6875rem",
+  color: "#d4a017",
+  margin: 0,
+  marginTop: "0.375rem",
+}}
                     >
                       ⚠ Belum di-assign
                     </p>
