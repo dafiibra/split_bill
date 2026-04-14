@@ -58,6 +58,7 @@ function SplitBillContent() {
 
   /* ── Bank Transfer ── */
   const [bankName, setBankName] = useState("Bank Central Asia (BCA)");
+  const [customBankName, setCustomBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountOwner, setAccountOwner] = useState("");
 
@@ -234,9 +235,10 @@ function SplitBillContent() {
 
   /* ── Copy bank details ── */
   const copyBankDetails = useCallback(() => {
-    const text = `${bankName}\n${accountNumber}\na.n. ${accountOwner}`;
+    const displayBank = bankName === "__custom__" ? customBankName : bankName;
+    const text = `${displayBank}\n${accountNumber}\na.n. ${accountOwner}`;
     navigator.clipboard.writeText(text).catch(() => {});
-  }, [bankName, accountNumber, accountOwner]);
+  }, [bankName, customBankName, accountNumber, accountOwner]);
 
   /* ── Share to WhatsApp ── */
   const shareWhatsApp = useCallback(() => {
@@ -257,12 +259,15 @@ function SplitBillContent() {
     msg += `💰 *Grand Total: Rp ${splitResult.grandTotal.toLocaleString("id-ID")}*\n`;
 
     if (accountNumber) {
-      msg += `\n🏦 Transfer ke:\n${bankName}\n${accountNumber}\na.n. ${accountOwner}`;
+      const displayBank = bankName === "__custom__" ? customBankName : bankName;
+      msg += `\n🏦 Transfer ke:\n${displayBank}\n${accountNumber}\na.n. ${accountOwner}`;
     }
+
+    msg += `\n\n---\nCapek ribet hitung manual tiap nongkrong? 😵‍💫\nCoba gratis sekarang aja pake ini 👇\n🌐 https://the-socialtable.vercel.app`;
 
     const encoded = encodeURIComponent(msg);
     window.open(`https://wa.me/?text=${encoded}`, "_blank");
-  }, [splitResult, bankName, accountNumber, accountOwner]);
+  }, [splitResult, bankName, customBankName, accountNumber, accountOwner]);
 
   const isLoggedIn = typeof window !== "undefined" && !!getToken();
 
@@ -936,7 +941,18 @@ function SplitBillContent() {
                     <option>OVO</option>
                     <option>DANA</option>
                     <option>ShopeePay</option>
+                    <option value="__custom__">Lainnya (isi sendiri)</option>
                   </select>
+                  {bankName === "__custom__" && (
+                    <input
+                      type="text"
+                      value={customBankName}
+                      onChange={(e) => setCustomBankName(e.target.value)}
+                      className="input-pill"
+                      placeholder="Nama bank / e-wallet kamu"
+                      style={{ marginTop: "0.5rem" }}
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem", marginLeft: "1rem", color: "var(--primary)", fontWeight: 700 }}>
@@ -996,7 +1012,7 @@ function SplitBillContent() {
                       margin: 0,
                     }}
                   >
-                    {bankName.split("(")[0].trim()}{" "}
+                    {(bankName === "__custom__" ? customBankName || "Bank kamu" : bankName.split("(")[0].trim())}{" "}
                     {accountNumber || "___________"}
                   </h3>
                   <p

@@ -4,8 +4,10 @@ E:\splitbill\backend\src\main\java\com\splitbill\backend\controllers\AuthControl
 E:\splitbill\backend\src\main\java\com\splitbill\backend\models\User.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\exception\SplitBillException.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\repositories\UserRepository.java
+E:\splitbill\backend\src\main\java\com\splitbill\backend\controllers\HealthController.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\dto\SplitBillRequest.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\models\SplitBillSession.java
+E:\splitbill\backend\src\main\java\com\splitbill\backend\exception\EmailAlreadyExistsException.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\controllers\SplitBillController.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\exception\ApiResponse.java
 E:\splitbill\backend\src\main\java\com\splitbill\backend\dto\PersonSplit.java
