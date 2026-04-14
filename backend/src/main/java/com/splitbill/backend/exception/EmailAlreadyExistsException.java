@@ -1,4 +1,4 @@
-package com.splitbill.backend.exceptions;
+package com.splitbill.backend.exception;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException(String email) {

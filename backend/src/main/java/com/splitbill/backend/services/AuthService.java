@@ -10,7 +10,7 @@ import com.splitbill.backend.dto.GoogleAuthRequest;
 import com.splitbill.backend.dto.RegisterRequest;
 import com.splitbill.backend.models.Role;
 import com.splitbill.backend.models.User;
-import com.splitbill.backend.exceptions.EmailAlreadyExistsException;
+import com.splitbill.backend.exception.EmailAlreadyExistsException;
 import com.splitbill.backend.repositories.UserRepository;
 import com.splitbill.backend.security.JwtService;
 import org.springframework.beans.factory.annotation.Value;
