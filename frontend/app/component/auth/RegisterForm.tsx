@@ -18,12 +18,12 @@ export default function RegisterForm() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!name || !email || !password) {
-      setError("Lengkapi semua field di atas.");
+    if (!email || !password) {
+      setError("Please fill in all fields.");
       return;
     }
     if (password.length < 8) {
-      setError("Password minimal 8 karakter.");
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
@@ -32,7 +32,7 @@ export default function RegisterForm() {
       await api.post("/api/auth/register", { name, email, password });
       router.push("/login");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Registrasi gagal. Coba lagi.");
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ export default function RegisterForm() {
           disabled={loading}
           className="auth-submit-btn"
         >
-          {loading ? "Creating account..." : "Let\u2019s Eat! 🍽️"}
+          {loading ? "Creating account..." : "Register\u2019 🍽️"}
         </button>
       </form>
 
@@ -126,7 +126,6 @@ export default function RegisterForm() {
       {/* Footer micro-copy (mobile) */}
       <p className="auth-micro-copy">
         By joining, you agree to our{" "}
-        <span className="auth-micro-link">Terms of Service</span> and{" "}
         <span className="auth-micro-link">Table Manners</span> policy.
       </p>
 
