@@ -83,7 +83,7 @@ export default function Navbar() {
         <div className="auth-desktop">
           {isLoggedIn ? (
             <Link
-              href="/dashboard"
+              href="/"
               style={{
                 fontFamily: "var(--font-body)",
                 fontSize: "0.875rem",
@@ -92,7 +92,7 @@ export default function Navbar() {
                 textDecoration: "none",
               }}
             >
-              Dashboard →
+              Home →
             </Link>
           ) : (
             <>
@@ -196,7 +196,7 @@ export default function Navbar() {
             <div style={{ marginTop: "0.5rem", paddingTop: "0.75rem", borderTop: "1px solid var(--outline-variant)" }}>
               {isLoggedIn ? (
                 <Link
-                  href="/dashboard"
+                  href="/"
                   onClick={() => setMobileMenuOpen(false)}
                   style={{
                     display: "block",
@@ -211,7 +211,7 @@ export default function Navbar() {
                     textAlign: "center",
                   }}
                 >
-                  Dashboard →
+                  Home →
                 </Link>
               ) : (
                 <div style={{ display: "flex", gap: "0.5rem" }}>

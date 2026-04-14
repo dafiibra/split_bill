@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/axios";
 import { setToken } from "@/lib/auth";
+import { useSlowWarning } from "@/lib/useSlowWarning";
 import GoogleButton from "@/app/component/auth/GoogleButton";
 
 export default function LoginForm() {
@@ -15,8 +16,9 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const slow = useSlowWarning(loading);
 
-  const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const redirectTo = searchParams.get("redirect") || "/";
   const reason = searchParams.get("reason");
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -64,6 +66,11 @@ export default function LoginForm() {
       {/* Form */}
       <form onSubmit={handleLogin} className="auth-form">
         {error && <div className="auth-error">{error}</div>}
+        {slow && (
+          <div className="auth-reason-banner">
+            ⏳ Server lagi bangun, tunggu sebentar ya 🙏
+          </div>
+        )}
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="login-email">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/axios";
+import { useSlowWarning } from "@/lib/useSlowWarning";
 import GoogleButton from "@/app/component/auth/GoogleButton";
 
 export default function RegisterForm() {
@@ -14,6 +15,7 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const slow = useSlowWarning(loading);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +51,11 @@ export default function RegisterForm() {
       {/* Form */}
       <form onSubmit={handleRegister} className="auth-form">
         {error && <div className="auth-error">{error}</div>}
+        {slow && (
+          <div style={{ padding: "0.75rem 1rem", background: "var(--primary-container)", color: "var(--on-primary-container, #663938)", fontFamily: "var(--font-body)", fontSize: "0.8125rem", borderRadius: "var(--radius-lg, 2rem)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            ⏳ Server lagi bangun, tunggu sebentar ya 🙏
+          </div>
+        )}
 
 
         <div className="auth-field">

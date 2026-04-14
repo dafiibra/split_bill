@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import type { OcrResult } from "@/lib/types/splitbill";
 import { extractReceipt } from "@/lib/api/ocr";
+import { useSlowWarning } from "@/lib/useSlowWarning";
 
 interface OcrUploaderProps {
   onResult: (result: OcrResult) => void;
@@ -14,6 +15,7 @@ export default function OcrUploader({ onResult }: OcrUploaderProps) {
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const slow = useSlowWarning(scanning, 4000);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,6 +70,22 @@ export default function OcrUploader({ onResult }: OcrUploaderProps) {
           }}
         >
           {error}
+        </div>
+      )}
+
+      {slow && (
+        <div
+          style={{
+            padding: "0.75rem 1rem",
+            background: "var(--primary-container)",
+            color: "var(--on-primary-container, #663938)",
+            fontFamily: "var(--font-body)",
+            fontSize: "0.8125rem",
+            borderRadius: "var(--radius-lg)",
+            marginBottom: "1rem",
+          }}
+        >
+          ⏳ Server lagi bangun (proses OCR butuh waktu extra), tunggu sebentar ya 🙏
         </div>
       )}
 

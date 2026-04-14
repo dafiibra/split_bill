@@ -19,7 +19,7 @@ function GoogleLoginButton() {
         });
         if (res.data?.token) {
           setToken(res.data.token);
-          router.push("/dashboard");
+          router.push("/");
         }
       } catch (err) {
         console.error("Google login failed", err);

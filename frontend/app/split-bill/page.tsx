@@ -203,7 +203,7 @@ function SplitBillContent() {
       const msg =
         err.response?.data?.message ||
         err.message ||
-        "Gagal menyimpan split bill.";
+        "Gagal menyimpan hasil split bill kamu, hubungi Dafi ya :) .";
       setSaveError(msg);
     } finally {
       setSaving(false);

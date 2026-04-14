@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import { warmupServer } from "@/lib/warmup";
 
 /* ─── Floating Decorative Cards ─── */
 function FloatingCards() {
@@ -173,6 +174,10 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children, activeTab }: AuthLayoutProps) {
+  useEffect(() => {
+    warmupServer();
+  }, []);
+
   return (
     <div className="auth-page">
       {/* ── Glassmorphism Header ── */}

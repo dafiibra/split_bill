@@ -20,7 +20,7 @@ export default function AuthGuard({ children, requireAuth = true, redirectTo }: 
     if (requireAuth && !token) {
       router.replace(redirectTo || "/login");
     } else if (!requireAuth && token) {
-      router.replace(redirectTo || "/dashboard");
+      router.replace(redirectTo || "/");
     } else {
       setIsAuthorized(true);
     }

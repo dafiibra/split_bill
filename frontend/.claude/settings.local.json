@@ -11,7 +11,9 @@
       "Bash(ls -lh stitch_img_*)",
       "Bash(cp E:/splitbill/frontend/stitch_img_receipt.jpg E:/splitbill/frontend/public/receipt.jpg)",
       "Bash(cp E:/splitbill/frontend/stitch_img_google.png E:/splitbill/frontend/public/google-icon.png)",
-      "Bash(cp E:/splitbill/frontend/stitch_img_apple.png E:/splitbill/frontend/public/apple-icon.png)"
+      "Bash(cp E:/splitbill/frontend/stitch_img_apple.png E:/splitbill/frontend/public/apple-icon.png)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('mcpServers',{}\\), indent=2\\)\\)\")",
+      "Bash(claude mcp:*)"
     ]
   }
 }
