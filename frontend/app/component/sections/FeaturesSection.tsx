@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import FeatureCard from "@/app/component/ui/FeatureCard";
 
 export default function FeaturesSection() {
@@ -14,12 +15,16 @@ export default function FeaturesSection() {
             <p style={{ fontFamily: "var(--font-body)", fontSize: "0.875rem", color: "var(--on-surface-variant)", lineHeight: 1.7, marginBottom: "1.5rem", maxWidth: "280px" }}>
               Nggak perlu ketik manual satu-satu. Cukup foto receipt, sistem cerdas kami langsung deteksi menu dan harganya.
             </p>
-            <Link href="/scan" className="btn-primary" style={{ alignSelf: "flex-start", marginBottom: "1.5rem" }}>
+            <Link href="/split-bill" className="btn-primary" style={{ alignSelf: "flex-start", marginBottom: "1.5rem" }}>
               Coba Scan
             </Link>
-            {/* Image placeholder */}
-            <div style={{ flex: 1, minHeight: "180px", borderRadius: "var(--radius-lg)", background: "var(--surface-container)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", color: "var(--outline)" }}>📷 Image placeholder</span>
+            <div style={{ flex: 1, minHeight: "180px", borderRadius: "var(--radius-lg)", overflow: "hidden", position: "relative" }}>
+              <Image
+                src="/stitch_img_receipt.jpg"
+                alt="Receipt scan example"
+                fill
+                style={{ objectFit: "cover" }}
+              />
             </div>
           </div>
         </div>

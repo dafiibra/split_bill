@@ -39,6 +39,12 @@ function SplitBillContent() {
   const [taxRate, setTaxRate] = useState<number | null>(0.1);
   const [serviceRate, setServiceRate] = useState<number | null>(0.05);
 
+  /* ── Tax/Service input mode ── */
+  const [taxMode, setTaxMode] = useState<"percent" | "rupiah">("percent");
+  const [serviceMode, setServiceMode] = useState<"percent" | "rupiah">("percent");
+  const [taxAmount, setTaxAmount] = useState<number | null>(null);
+  const [serviceAmount, setServiceAmount] = useState<number | null>(null);
+
   /* ── Result ── */
   const [splitResult, setSplitResult] = useState<SplitBillResponse | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -119,13 +125,13 @@ function SplitBillContent() {
 
     return {
       people,
-      taxRate,
-      serviceRate,
-      detectedTax,
-      detectedService,
+      taxRate: taxMode === "percent" ? taxRate : null,
+      serviceRate: serviceMode === "percent" ? serviceRate : null,
+      detectedTax: taxMode === "rupiah" ? taxAmount : detectedTax,
+      detectedService: serviceMode === "rupiah" ? serviceAmount : detectedService,
       detectedDiscount,
     };
-  }, [participants, items, assignments, taxRate, serviceRate, detectedTax, detectedService, detectedDiscount]);
+  }, [participants, items, assignments, taxRate, serviceRate, taxMode, serviceMode, taxAmount, serviceAmount, detectedTax, detectedService, detectedDiscount]);
 
   /* ── Build request and call backend ── */
   const handleCalculate = useCallback(async () => {
@@ -176,6 +182,10 @@ function SplitBillContent() {
           restaurantName,
           taxRate,
           serviceRate,
+          taxMode,
+          serviceMode,
+          taxAmount,
+          serviceAmount,
           detectedTax,
           detectedService,
           detectedDiscount,
@@ -473,10 +483,10 @@ function SplitBillContent() {
             marginBottom: "2rem",
           }}
         >
-          <div className="animate-fade-in-up delay-200" style={{ opacity: 0 }}>
+          <div className="animate-fade-in-up delay-200" style={{ opacity: 0, minWidth: 0 }}>
             <ItemEditor items={items} onItemsChange={setItems} />
           </div>
-          <div className="animate-fade-in-up delay-300" style={{ opacity: 0 }}>
+          <div className="animate-fade-in-up delay-300" style={{ opacity: 0, minWidth: 0 }}>
             <PersonAssigner
               items={items}
               participants={participants}
@@ -511,35 +521,110 @@ function SplitBillContent() {
               Tax & Service Rate
             </h3>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              {/* Tax */}
               <div>
-                <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem" }}>
-                  Tax Rate (%)
-                </label>
-                <input
-                  type="number"
-                  className="input-pill"
-                  placeholder="10"
-                  value={taxRate !== null ? taxRate * 100 : ""}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    setTaxRate(isNaN(val) ? null : val / 100);
-                  }}
-                />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <label className="label-caps">Tax</label>
+                  <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
+                    {(["percent", "rupiah"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setTaxMode(m)}
+                        style={{
+                          padding: "0.2rem 0.6rem",
+                          borderRadius: "var(--radius-full)",
+                          border: "none",
+                          cursor: "pointer",
+                          fontFamily: "var(--font-body)",
+                          fontWeight: 700,
+                          fontSize: "0.6875rem",
+                          background: taxMode === m ? "var(--primary)" : "transparent",
+                          color: taxMode === m ? "#fff" : "var(--on-surface-variant)",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {m === "percent" ? "%" : "Rp"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {taxMode === "percent" ? (
+                  <input
+                    type="number"
+                    className="input-pill"
+                    placeholder="10"
+                    value={taxRate !== null ? taxRate * 100 : ""}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setTaxRate(isNaN(val) ? null : val / 100);
+                    }}
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    className="input-pill"
+                    placeholder="15000"
+                    value={taxAmount !== null ? taxAmount : ""}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setTaxAmount(isNaN(val) ? null : val);
+                    }}
+                  />
+                )}
               </div>
+
+              {/* Service */}
               <div>
-                <label className="label-caps" style={{ display: "block", marginBottom: "0.5rem" }}>
-                  Service Rate (%)
-                </label>
-                <input
-                  type="number"
-                  className="input-pill"
-                  placeholder="5"
-                  value={serviceRate !== null ? serviceRate * 100 : ""}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    setServiceRate(isNaN(val) ? null : val / 100);
-                  }}
-                />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <label className="label-caps">Service</label>
+                  <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
+                    {(["percent", "rupiah"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setServiceMode(m)}
+                        style={{
+                          padding: "0.2rem 0.6rem",
+                          borderRadius: "var(--radius-full)",
+                          border: "none",
+                          cursor: "pointer",
+                          fontFamily: "var(--font-body)",
+                          fontWeight: 700,
+                          fontSize: "0.6875rem",
+                          background: serviceMode === m ? "var(--primary)" : "transparent",
+                          color: serviceMode === m ? "#fff" : "var(--on-surface-variant)",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {m === "percent" ? "%" : "Rp"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {serviceMode === "percent" ? (
+                  <input
+                    type="number"
+                    className="input-pill"
+                    placeholder="5"
+                    value={serviceRate !== null ? serviceRate * 100 : ""}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setServiceRate(isNaN(val) ? null : val / 100);
+                    }}
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    className="input-pill"
+                    placeholder="10000"
+                    value={serviceAmount !== null ? serviceAmount : ""}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setServiceAmount(isNaN(val) ? null : val);
+                    }}
+                  />
+                )}
               </div>
             </div>
           </section>

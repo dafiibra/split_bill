@@ -46,7 +46,9 @@ export default function ItemEditor({ items, onItemsChange }: ItemEditorProps) {
       style={{
         background: "var(--surface-container-low)",
         borderRadius: "var(--radius-xl)",
-        padding: "2rem",
+        padding: "1.25rem",
+        minWidth: 0,
+        overflow: "hidden",
       }}
     >
       <div
@@ -90,11 +92,11 @@ export default function ItemEditor({ items, onItemsChange }: ItemEditorProps) {
             key={item.id}
             style={{
               background: "var(--surface-container-lowest)",
-              padding: "1rem 1.25rem",
+              padding: "0.75rem 1rem",
               borderRadius: "var(--radius-lg)",
               display: "flex",
               alignItems: "center",
-              gap: "0.75rem",
+              gap: "0.5rem",
             }}
           >
             <input
@@ -107,13 +109,16 @@ export default function ItemEditor({ items, onItemsChange }: ItemEditorProps) {
                 border: "none",
                 fontFamily: "var(--font-display)",
                 fontWeight: 600,
-                fontSize: "0.9375rem",
+                fontSize: "0.875rem",
                 color: "var(--on-surface)",
                 outline: "none",
                 minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               }}
             />
-            <div style={{ position: "relative", width: "130px", flexShrink: 0 }}>
+            <div style={{ position: "relative", width: "clamp(85px, 28%, 120px)", flexShrink: 0 }}>
               <span
                 style={{
                   position: "absolute",
@@ -223,14 +228,7 @@ export default function ItemEditor({ items, onItemsChange }: ItemEditorProps) {
       )}
 
       {/* Add new item */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "0.75rem",
-          marginBottom: "0.75rem",
-        }}
-      >
+      <div className="item-add-grid" style={{ marginBottom: "0.75rem" }}>
         <input
           type="text"
           className="input-pill"
@@ -272,6 +270,19 @@ export default function ItemEditor({ items, onItemsChange }: ItemEditorProps) {
       >
         + Tambah Item
       </button>
+
+      <style jsx>{`
+        .item-add-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+        @media (max-width: 480px) {
+          .item-add-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </section>
   );
 }

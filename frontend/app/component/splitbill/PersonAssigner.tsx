@@ -70,7 +70,9 @@ export default function PersonAssigner({
       style={{
         background: "var(--surface-container-low)",
         borderRadius: "var(--radius-xl)",
-        padding: "2rem",
+        padding: "1.25rem",
+        minWidth: 0,
+        overflow: "hidden",
       }}
     >
       <div
