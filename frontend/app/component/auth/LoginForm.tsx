@@ -63,14 +63,16 @@ export default function LoginForm() {
         </div>
       )}
 
+      {/* Slow server warning — outside form so it won't shift form layout */}
+      {slow && (
+        <div className="auth-reason-banner">
+          ⏳ Server lagi bangun, tunggu sebentar ya 🙏
+        </div>
+      )}
+
       {/* Form */}
       <form onSubmit={handleLogin} className="auth-form">
         {error && <div className="auth-error">{error}</div>}
-        {slow && (
-          <div className="auth-reason-banner">
-            ⏳ Server lagi bangun, tunggu sebentar ya 🙏
-          </div>
-        )}
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="login-email">
@@ -209,6 +211,11 @@ export default function LoginForm() {
           font-family: var(--font-body);
           font-size: 0.8125rem;
           border-radius: var(--radius-lg, 2rem);
+          animation: errorFadeIn 0.25s ease;
+        }
+        @keyframes errorFadeIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         .auth-field {
           display: flex;

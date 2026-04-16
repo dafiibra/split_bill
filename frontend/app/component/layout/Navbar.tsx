@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { getToken, removeToken } from "@/lib/auth";
 
 interface NavLink {
   label: string;
@@ -18,10 +19,18 @@ const navLinks: NavLink[] = [
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsLoggedIn(!!getToken());
   }, []);
+
+  const handleLogout = () => {
+    removeToken();
+    setIsLoggedIn(false);
+    setMobileMenuOpen(false);
+    router.push("/login");
+  };
 
   return (
     <header className="glass-header" style={{ position: "sticky", top: 0, zIndex: 50 }}>
@@ -82,18 +91,31 @@ export default function Navbar() {
         {/* Auth actions — desktop */}
         <div className="auth-desktop">
           {isLoggedIn ? (
-            <Link
-              href="/"
+            <button
+              onClick={handleLogout}
               style={{
                 fontFamily: "var(--font-body)",
                 fontSize: "0.875rem",
-                fontWeight: 500,
+                fontWeight: 600,
                 color: "var(--primary)",
-                textDecoration: "none",
+                background: "none",
+                border: "1px solid var(--primary)",
+                borderRadius: "9999px",
+                padding: "0.5rem 1.25rem",
+                cursor: "pointer",
+                transition: "background 0.2s ease, color 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = "var(--primary)";
+                (e.currentTarget as HTMLButtonElement).style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background = "none";
+                (e.currentTarget as HTMLButtonElement).style.color = "var(--primary)";
               }}
             >
-              Home →
-            </Link>
+              Logout
+            </button>
           ) : (
             <>
               <Link
@@ -195,24 +217,25 @@ export default function Navbar() {
             {/* Auth links in mobile menu */}
             <div style={{ marginTop: "0.5rem", paddingTop: "0.75rem", borderTop: "1px solid var(--outline-variant)" }}>
               {isLoggedIn ? (
-                <Link
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
+                <button
+                  onClick={handleLogout}
                   style={{
                     display: "block",
+                    width: "100%",
                     fontFamily: "var(--font-body)",
                     fontSize: "0.875rem",
                     fontWeight: 600,
                     color: "var(--primary)",
-                    textDecoration: "none",
+                    background: "none",
+                    border: "1px solid var(--primary)",
                     padding: "0.75rem 1rem",
                     borderRadius: "var(--radius-lg)",
-                    background: "var(--primary-container)",
                     textAlign: "center",
+                    cursor: "pointer",
                   }}
                 >
-                  Home →
-                </Link>
+                  Logout
+                </button>
               ) : (
                 <div style={{ display: "flex", gap: "0.5rem" }}>
                   <Link

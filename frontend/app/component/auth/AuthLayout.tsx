@@ -325,7 +325,7 @@ export default function AuthLayout({ children, activeTab }: AuthLayoutProps) {
       {/* ── Footer ── */}
       <footer className="auth-footer">
         <p className="auth-footer-copy">
-          © 2025 THE SOCIAL TABLE. ALL RIGHTS RESERVED.
+          © 2026 IBRAHIM DAFI I . ALL RIGHTS RESERVED.
         </p>
         <div className="auth-footer-links">
           <a href="#">Privacy Policy</a>
