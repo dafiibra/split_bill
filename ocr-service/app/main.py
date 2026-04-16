@@ -25,6 +25,6 @@ app.add_middleware(
 app.include_router(ocr_router, prefix="/api/ocr", tags=["OCR"])
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
     return {"status": "healthy", "service": "ocr-service"}

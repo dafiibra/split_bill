@@ -3,7 +3,8 @@
     "allow": [
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://split-bill-slgi.onrender.com/health)",
       "Bash(curl:*)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(xargs ls *)"
     ]
   }
 }

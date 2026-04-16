@@ -5,8 +5,7 @@ load_dotenv()
 
 
 class Settings:
-    OCR_ENGINE: str = os.getenv("OCR_ENGINE", "easyocr")
-    OCR_LANGUAGES: list[str] = os.getenv("OCR_LANGUAGES", "id,en").split(",")
+    ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
     MAX_FILE_SIZE_MB: int = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
     CORS_ORIGINS: list[str] = os.getenv(
         "CORS_ORIGINS",
