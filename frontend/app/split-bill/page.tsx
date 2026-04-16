@@ -45,6 +45,11 @@ function SplitBillContent() {
   const [taxAmount, setTaxAmount] = useState<number | null>(null);
   const [serviceAmount, setServiceAmount] = useState<number | null>(null);
 
+  /* ── Discount input mode (manual) ── */
+  const [discountMode, setDiscountMode] = useState<"percent" | "rupiah">("rupiah");
+  const [discountRate, setDiscountRate] = useState<number | null>(null);
+  const [discountAmount, setDiscountAmount] = useState<number | null>(null);
+
   /* ── Result ── */
   const [splitResult, setSplitResult] = useState<SplitBillResponse | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -124,15 +129,26 @@ function SplitBillContent() {
       return { name: p.name, items: assignedItems };
     });
 
+    // Hitung discount manual jika OCR tidak mendeteksi discount
+    let resolvedDiscount: number | null = detectedDiscount;
+    if (detectedDiscount === null) {
+      if (discountMode === "rupiah" && discountAmount !== null) {
+        resolvedDiscount = discountAmount;
+      } else if (discountMode === "percent" && discountRate !== null) {
+        const subtotal = items.reduce((s, item) => s + item.price, 0);
+        resolvedDiscount = Math.round(subtotal * discountRate);
+      }
+    }
+
     return {
       people,
       taxRate: taxMode === "percent" ? taxRate : null,
       serviceRate: serviceMode === "percent" ? serviceRate : null,
       detectedTax: taxMode === "rupiah" ? taxAmount : detectedTax,
       detectedService: serviceMode === "rupiah" ? serviceAmount : detectedService,
-      detectedDiscount,
+      detectedDiscount: resolvedDiscount,
     };
-  }, [participants, items, assignments, taxRate, serviceRate, taxMode, serviceMode, taxAmount, serviceAmount, detectedTax, detectedService, detectedDiscount]);
+  }, [participants, items, assignments, taxRate, serviceRate, taxMode, serviceMode, taxAmount, serviceAmount, detectedTax, detectedService, detectedDiscount, discountMode, discountRate, discountAmount]);
 
   /* ── Build request and call backend ── */
   const handleCalculate = useCallback(async () => {
@@ -190,6 +206,9 @@ function SplitBillContent() {
           detectedTax,
           detectedService,
           detectedDiscount,
+          discountMode,
+          discountRate,
+          discountAmount,
         })
       );
       router.push("/login?redirect=/split-bill&reason=save");
@@ -502,8 +521,8 @@ function SplitBillContent() {
           </div>
         </div>
 
-        {/* ═══ Tax/Service Rate Override (when OCR didn't detect) ═══ */}
-        {detectedTax === null && detectedService === null && (
+        {/* ═══ Tax / Service / Discount Override ═══ */}
+        {(detectedTax === null || detectedService === null || detectedDiscount === null) && (
           <section
             className="animate-fade-in-up delay-300"
             style={{
@@ -523,114 +542,197 @@ function SplitBillContent() {
                 marginBottom: "1rem",
               }}
             >
-              Tax & Service Rate
+              Tax, Service & Discount
             </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              {/* Tax */}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label className="label-caps">Tax</label>
-                  <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
-                    {(["percent", "rupiah"] as const).map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => setTaxMode(m)}
-                        style={{
-                          padding: "0.2rem 0.6rem",
-                          borderRadius: "var(--radius-full)",
-                          border: "none",
-                          cursor: "pointer",
-                          fontFamily: "var(--font-body)",
-                          fontWeight: 700,
-                          fontSize: "0.6875rem",
-                          background: taxMode === m ? "var(--primary)" : "transparent",
-                          color: taxMode === m ? "#fff" : "var(--on-surface-variant)",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {m === "percent" ? "%" : "Rp"}
-                      </button>
-                    ))}
+            <div
+              className="charges-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${[detectedTax === null, detectedService === null, detectedDiscount === null].filter(Boolean).length}, 1fr)`,
+                gap: "1rem",
+              }}
+            >
+              {/* Tax — hanya tampil jika OCR tidak mendeteksi */}
+              {detectedTax === null && (
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                    <label className="label-caps">Tax</label>
+                    <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
+                      {(["percent", "rupiah"] as const).map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setTaxMode(m)}
+                          style={{
+                            padding: "0.2rem 0.6rem",
+                            borderRadius: "var(--radius-full)",
+                            border: "none",
+                            cursor: "pointer",
+                            fontFamily: "var(--font-body)",
+                            fontWeight: 700,
+                            fontSize: "0.6875rem",
+                            background: taxMode === m ? "var(--primary)" : "transparent",
+                            color: taxMode === m ? "#fff" : "var(--on-surface-variant)",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          {m === "percent" ? "%" : "Rp"}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                  {taxMode === "percent" ? (
+                    <input
+                      type="number"
+                      className="input-pill"
+                      placeholder="10"
+                      value={taxRate !== null ? taxRate * 100 : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setTaxRate(isNaN(val) ? null : val / 100);
+                      }}
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      className="input-pill"
+                      placeholder="15000"
+                      value={taxAmount !== null ? taxAmount : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setTaxAmount(isNaN(val) ? null : val);
+                      }}
+                    />
+                  )}
                 </div>
-                {taxMode === "percent" ? (
-                  <input
-                    type="number"
-                    className="input-pill"
-                    placeholder="10"
-                    value={taxRate !== null ? taxRate * 100 : ""}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      setTaxRate(isNaN(val) ? null : val / 100);
-                    }}
-                  />
-                ) : (
-                  <input
-                    type="number"
-                    className="input-pill"
-                    placeholder="15000"
-                    value={taxAmount !== null ? taxAmount : ""}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      setTaxAmount(isNaN(val) ? null : val);
-                    }}
-                  />
-                )}
-              </div>
+              )}
 
-              {/* Service */}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                  <label className="label-caps">Service</label>
-                  <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
-                    {(["percent", "rupiah"] as const).map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => setServiceMode(m)}
-                        style={{
-                          padding: "0.2rem 0.6rem",
-                          borderRadius: "var(--radius-full)",
-                          border: "none",
-                          cursor: "pointer",
-                          fontFamily: "var(--font-body)",
-                          fontWeight: 700,
-                          fontSize: "0.6875rem",
-                          background: serviceMode === m ? "var(--primary)" : "transparent",
-                          color: serviceMode === m ? "#fff" : "var(--on-surface-variant)",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {m === "percent" ? "%" : "Rp"}
-                      </button>
-                    ))}
+              {/* Service — hanya tampil jika OCR tidak mendeteksi */}
+              {detectedService === null && (
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                    <label className="label-caps">Service</label>
+                    <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
+                      {(["percent", "rupiah"] as const).map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setServiceMode(m)}
+                          style={{
+                            padding: "0.2rem 0.6rem",
+                            borderRadius: "var(--radius-full)",
+                            border: "none",
+                            cursor: "pointer",
+                            fontFamily: "var(--font-body)",
+                            fontWeight: 700,
+                            fontSize: "0.6875rem",
+                            background: serviceMode === m ? "var(--primary)" : "transparent",
+                            color: serviceMode === m ? "#fff" : "var(--on-surface-variant)",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          {m === "percent" ? "%" : "Rp"}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                  {serviceMode === "percent" ? (
+                    <input
+                      type="number"
+                      className="input-pill"
+                      placeholder="5"
+                      value={serviceRate !== null ? serviceRate * 100 : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setServiceRate(isNaN(val) ? null : val / 100);
+                      }}
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      className="input-pill"
+                      placeholder="10000"
+                      value={serviceAmount !== null ? serviceAmount : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setServiceAmount(isNaN(val) ? null : val);
+                      }}
+                    />
+                  )}
                 </div>
-                {serviceMode === "percent" ? (
-                  <input
-                    type="number"
-                    className="input-pill"
-                    placeholder="5"
-                    value={serviceRate !== null ? serviceRate * 100 : ""}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      setServiceRate(isNaN(val) ? null : val / 100);
-                    }}
-                  />
-                ) : (
-                  <input
-                    type="number"
-                    className="input-pill"
-                    placeholder="10000"
-                    value={serviceAmount !== null ? serviceAmount : ""}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value);
-                      setServiceAmount(isNaN(val) ? null : val);
-                    }}
-                  />
-                )}
-              </div>
+              )}
+
+              {/* Discount — hanya tampil jika OCR tidak mendeteksi */}
+              {detectedDiscount === null && (
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                    <label className="label-caps" style={{ color: "#2d6a4f" }}>Discount</label>
+                    <div style={{ display: "flex", background: "var(--surface-container)", borderRadius: "var(--radius-full)", padding: "2px", gap: "2px" }}>
+                      {(["percent", "rupiah"] as const).map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setDiscountMode(m)}
+                          style={{
+                            padding: "0.2rem 0.6rem",
+                            borderRadius: "var(--radius-full)",
+                            border: "none",
+                            cursor: "pointer",
+                            fontFamily: "var(--font-body)",
+                            fontWeight: 700,
+                            fontSize: "0.6875rem",
+                            background: discountMode === m ? "#2d6a4f" : "transparent",
+                            color: discountMode === m ? "#fff" : "var(--on-surface-variant)",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          {m === "percent" ? "%" : "Rp"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {discountMode === "percent" ? (
+                    <input
+                      type="number"
+                      className="input-pill"
+                      placeholder="10"
+                      min={0}
+                      max={100}
+                      value={discountRate !== null ? discountRate * 100 : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setDiscountRate(isNaN(val) ? null : val / 100);
+                      }}
+                      style={{ borderColor: discountRate !== null ? "#2d6a4f" : undefined }}
+                    />
+                  ) : (
+                    <input
+                      type="number"
+                      className="input-pill"
+                      placeholder="0 (opsional)"
+                      min={0}
+                      value={discountAmount !== null ? discountAmount : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setDiscountAmount(isNaN(val) ? null : val);
+                      }}
+                      style={{ borderColor: discountAmount !== null && discountAmount > 0 ? "#2d6a4f" : undefined }}
+                    />
+                  )}
+                  {/* Preview discount amount saat mode % */}
+                  {discountMode === "percent" && discountRate !== null && items.length > 0 && (
+                    <p style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "0.6875rem",
+                      color: "#2d6a4f",
+                      marginTop: "0.375rem",
+                      marginLeft: "1rem",
+                    }}>
+                      ≈ Rp {Math.round(items.reduce((s, i) => s + i.price, 0) * discountRate).toLocaleString("id-ID")}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -1118,6 +1220,11 @@ function SplitBillContent() {
                 setDetectedDiscount(null);
                 setTaxRate(0.1);
                 setServiceRate(0.05);
+                setTaxAmount(null);
+                setServiceAmount(null);
+                setDiscountMode("rupiah");
+                setDiscountRate(null);
+                setDiscountAmount(null);
                 setCalcError("");
                 setRestaurantName("");
                 setSaveSuccess(false);
@@ -1159,6 +1266,9 @@ function SplitBillContent() {
             grid-template-columns: 1fr !important;
           }
           .actions-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .charges-grid {
             grid-template-columns: 1fr !important;
           }
         }

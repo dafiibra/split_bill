@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://split-bill-slgi.onrender.com/health)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx tsc *)"
     ]
   }
 }
