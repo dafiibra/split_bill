@@ -65,7 +65,6 @@ function GoogleLoginButton() {
         text="signin_with"
         shape="pill"
         theme="outline"
-        locale="id"
       />
       <style jsx>{`
         .google-btn-wrapper {
